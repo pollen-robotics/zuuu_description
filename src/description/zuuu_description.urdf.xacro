@@ -14,6 +14,8 @@
   <xacro:property name="wheel_width" value="0.035"/>
   <xacro:property name="wheel_radial_dist" value="0.1805"/>
   <xacro:property name="wheel_zoff" value="0.20"/>
+  <xacro:property name="global_damping" value="1.0"/>
+  <xacro:property name="global_friction" value="1.0"/>
 
 
 
@@ -47,7 +49,7 @@
   <joint name="base_footprint_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 0 ${(base_top_height-base_depth/2)}"/>
-    <joint_properties damping="1" friction="1"/>
+    <!-- <joint_properties damping="${global_damping}" friction="${global_friction}"/> -->
     <parent link="base_footprint"/>
     <child link="base_link"/>
   </joint>
@@ -80,11 +82,10 @@
       <visual>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
         <geometry>
-            <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+            <box size="${wheel_radius} ${wheel_radius} ${wheel_width}"/>
+            <!-- <cylinder radius="${wheel_radius}" length="${wheel_width}"/> -->
         </geometry>
-        <material name="Gray">
-          <color rgba="0.5 0.5 0.5 1.0"/>
-        </material>
+        <material name="Bricks"></material>
       </visual>
 
       <collision>
@@ -103,7 +104,18 @@
       <child link="${prefix}_link"/>
       <origin xyz="${wheel_radial_dist*cos(yaw_angle)} ${-wheel_radial_dist*sin(yaw_angle)} ${-((base_top_height-base_depth/2)- wheel_radius)}" rpy="0 0 ${pi/2-yaw_angle}"/>
       <axis xyz="0 1 0"/>
+      <joint_properties damping="${global_damping}" friction="${global_friction}"/>
+      <limit effort="100" velocity="100"/>
     </joint>
+    <gazebo reference="${prefix}_link">
+      <mu1 value="1.0"/>
+      <mu2 value="0.0"/>
+      <kp value="10000000.0" />
+      <kd value="1.0" />
+      <fdir1 value="1 0 0"/>
+          <turnGravityOff>false</turnGravityOff>
+    </gazebo>
+
   </xacro:macro>
 
   <!-- Wheel 1 at the back, 2 on the right, 3 on the left -->
@@ -141,28 +153,12 @@
     </actuator>
   </transmission>
 
-  <!-- <xacro:macro name="omni_steering" params="">
-    <gazebo>
-      <plugin name="omni_steering" filename="libgazebo_ros_planar_move.so">
-        <commandTopic>cmd_vel</commandTopic>
-        <odometryTopic>odom</odometryTopic>
-        <odometryFrame>odom</odometryFrame>
-        <odometryRate>50.0</odometryRate>
-        <robotBaseFrame>base_link</robotBaseFrame>
-        <publishTF>true</publishTF>
-      </plugin>
-    </gazebo>
-  </xacro:macro> -->
-  
-  <!-- <xacro:omni_steering/> -->
-
   <gazebo>
     <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
        
       <commandTopic>cmd_vel</commandTopic>
       <odometryTopic>odom</odometryTopic>
-      <robotNamespace><remapping>/tf:=tf</remapping>  </robotNamespace>
-      <ros>    <remapping>/tf:=tf</remapping>    </ros>
+      <robotNamespace> </robotNamespace>
 
       <!-- Set control loop update rate -->
       <odometryRate>100</odometryRate>
