@@ -8,7 +8,7 @@ def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package='zuuu_description').find('zuuu_description')
     default_model_path = os.path.join(
-        pkg_share, 'src/description/zuuu_description.urdf')
+        pkg_share, 'src/description/zuuu_description.urdf.xacro')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
     world_path = os.path.join(pkg_share, 'world/my_world.sdf')
 

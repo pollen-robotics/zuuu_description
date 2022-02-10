@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <robot name="zuuu" xmlns:xacro="http://ros.org/wiki/xacro">
 
+  <!-- omni_steering -->
+	<!-- <xacro:include filename="/home/remi/ros2_ws/src/zuuu_description/src/description/zuuu_omni_steering.urdf.xacro" /> -->
+  
+
   <!-- Define robot constants -->
   <xacro:property name="base_radius" value="0.16"/>
   <xacro:property name="base_top_height" value="0.1425"/>
@@ -36,6 +40,17 @@
       <inertia ixx="${(2/5) * m * (r*r)}" ixy="0.0" ixz="0.0" iyy="${(2/5) * m * (r*r)}" iyz="0.0" izz="${(2/5) * m * (r*r)}"/>
     </inertial>
   </xacro:macro>
+
+  <!-- Robot Footprint -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 ${(base_top_height-base_depth/2)}"/>
+    <joint_properties damping="1" friction="1"/>
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+  </joint>
   
   <!-- Robot Base -->
   <link name="base_link">
@@ -57,16 +72,7 @@
     <xacro:cylinder_inertia m="20" r="${base_radius}" h="${base_depth}"/>
   </link>
   
-   <!-- Robot Footprint -->
-  <link name="base_footprint">
-  	<xacro:box_inertia m="0" w="0" d="0" h="0"/>
-  </link>
 
-  <joint name="base_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="base_footprint"/>
-    <origin xyz="0.0 0.0 ${-(base_top_height-base_depth/2)}" rpy="0 0 0"/>
-  </joint>
 
   <!-- Wheels -->
   <xacro:macro name="wheel" params="prefix yaw_angle">
@@ -91,6 +97,7 @@
       <xacro:cylinder_inertia m="0.5" r="${wheel_radius}" h="${wheel_width}"/>
     </link>
 
+<!-- I've seen a robot using "fixed" instead of continuous here. Tried it but the robot has a weird behaviour and falls down (kinda expected). But with continuous the TF doesn't appear. -->
     <joint name="${prefix}_joint" type="continuous">
       <parent link="base_link"/>
       <child link="${prefix}_link"/>
@@ -103,6 +110,80 @@
   <xacro:wheel prefix="drivewhl1" yaw_angle="${pi/3}" />
   <xacro:wheel prefix="drivewhl2" yaw_angle="${5*pi/3}" />
   <xacro:wheel prefix="drivewhl3" yaw_angle="${pi}" />
+
+  <!-- Doesn't seem to be working well (tf not being published?), so I'm doing it by hand -->
+  
+  <transmission name="drivewhl1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="drivewhl1_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="drivewhl1_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="drivewhl2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="drivewhl2_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="drivewhl2_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+  <transmission name="drivewhl3">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="drivewhl3_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="drivewhl3_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- <xacro:macro name="omni_steering" params="">
+    <gazebo>
+      <plugin name="omni_steering" filename="libgazebo_ros_planar_move.so">
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>odom</odometryFrame>
+        <odometryRate>50.0</odometryRate>
+        <robotBaseFrame>base_link</robotBaseFrame>
+        <publishTF>true</publishTF>
+      </plugin>
+    </gazebo>
+  </xacro:macro> -->
+  
+  <!-- <xacro:omni_steering/> -->
+
+  <gazebo>
+    <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+       
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>odom</odometryTopic>
+      <robotNamespace><remapping>/tf:=tf</remapping>  </robotNamespace>
+      <ros>    <remapping>/tf:=tf</remapping>    </ros>
+
+      <!-- Set control loop update rate -->
+      <odometryRate>100</odometryRate>
+      <!-- Set odom publish rate -->
+      <publish_rate>100</publish_rate>
+
+      <!-- Set if odom required -->
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+
+      <!-- Frame IDs -->
+      <odometryFrame>odom</odometryFrame>
+      <robotBaseFrame>base_link</robotBaseFrame>
+
+      <!-- Set odom covariance -->
+      <covariance_x>0.0001</covariance_x>
+      <covariance_y>0.0001</covariance_y>
+      <covariance_yaw>0.01</covariance_yaw>
+
+    </plugin>  
+  </gazebo>
 
 
   <link name="imu_link">
@@ -333,4 +414,13 @@
       </plugin>
     </sensor>
   </gazebo>
+
+  <gazebo>
+      <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+        <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
+      </plugin>
+  </gazebo>
+
+
+
 </robot>
