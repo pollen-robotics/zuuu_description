@@ -123,35 +123,6 @@
   <xacro:wheel prefix="drivewhl2" yaw_angle="${5*pi/3}" />
   <xacro:wheel prefix="drivewhl3" yaw_angle="${pi}" />
 
-  <!-- Doesn't seem to be working well (tf not being published?), so I'm doing it by hand -->
-  
-  <transmission name="drivewhl1">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="drivewhl1_joint">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="drivewhl1_motor">
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-  <transmission name="drivewhl2">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="drivewhl2_joint">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="drivewhl2_motor">
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
-  <transmission name="drivewhl3">
-    <type>transmission_interface/SimpleTransmission</type>
-    <joint name="drivewhl3_joint">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
-    </joint>
-    <actuator name="drivewhl3_motor">
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-  </transmission>
 
   <gazebo>
     <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
@@ -179,6 +150,44 @@
       <covariance_yaw>0.01</covariance_yaw>
 
     </plugin>  
+  </gazebo>
+
+  <ros2_control name="GazeboSystem" type="system">
+    <hardware>
+        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        <!-- <plugin>fake_components/GenericSystem</plugin> -->
+
+    </hardware>
+    <joint name="drivewhl1_joint">
+      <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+    </joint>
+    <joint name="drivewhl2_joint">
+      <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+    </joint>
+    <joint name="drivewhl3_joint">
+      <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+  <!-- Calling the pluging that will parse the ros2_control tags -->
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
+    </plugin>
   </gazebo>
 
 
@@ -410,13 +419,6 @@
       </plugin>
     </sensor>
   </gazebo>
-
-  <gazebo>
-      <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-        <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
-      </plugin>
-  </gazebo>
-
 
 
 </robot>
