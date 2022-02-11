@@ -14,7 +14,7 @@
   <xacro:property name="wheel_radial_dist" value="0.1805"/>
   <xacro:property name="wheel_zoff" value="0.20"/>
   <xacro:property name="global_damping" value="0.5"/>
-  <xacro:property name="global_friction" value="0.5"/>
+  <xacro:property name="global_friction" value="0.1"/>
 
 
 
