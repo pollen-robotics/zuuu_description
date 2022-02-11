@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot name="zuuu" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:arg name="use_fake_components" default="true"/>
+  <xacro:arg name="use_fake_components" default="false"/>
+  <xacro:arg name="use_fixed_wheels" default="true"/>
 
   <!-- Define robot constants -->
   <xacro:property name="base_radius" value="0.16"/>
@@ -96,28 +97,50 @@
       <xacro:cylinder_inertia m="0.5" r="${wheel_radius}" h="${wheel_width}"/>
     </link>
 
-    <!-- I've seen a robot using "fixed" instead of continuous here...-->
-    <joint name="${prefix}_joint" type="continuous">
-      <parent link="base_link"/>
-      <child link="${prefix}_link"/>
-      <origin xyz="${wheel_radial_dist*cos(yaw_angle)} ${-wheel_radial_dist*sin(yaw_angle)} ${-((base_top_height-base_depth/2)- wheel_radius)}" rpy="0 0 ${pi/2-yaw_angle}"/>
-      <axis xyz="0 1 0"/>
-      <joint_properties damping="${global_damping}" friction="${global_friction}"/>
-    </joint>
-    <!-- Physics! -->
-    <gazebo reference="${prefix}_link">
-      <mu1 value="1.0"/>
-      <mu2 value="0.0"/>
-      <kp value="10000000.0" />
-      <kd value="1.0" />
-      <fdir1 value="1 0 0"/>
-      <maxVel>1.0</maxVel>
-      <minDepth>0.0</minDepth>
-      <turnGravityOff>false</turnGravityOff>
-    </gazebo>
 
+    <xacro:if value="$(arg use_fixed_wheels)">
+        <joint name="${prefix}_joint" type="fixed">
+          <parent link="base_link"/>
+          <child link="${prefix}_link"/>
+          <origin xyz="${wheel_radial_dist*cos(yaw_angle)} ${-wheel_radial_dist*sin(yaw_angle)} ${-((base_top_height-base_depth/2)- wheel_radius)}" rpy="0 0 ${pi/2-yaw_angle}"/>
+          <axis xyz="0 1 0"/>
+          <joint_properties damping="${global_damping}" friction="${global_friction}"/>
+        </joint>
+        <!-- No friction because we suck and everything is lame -->
+        <gazebo reference="${prefix}_link">
+          <mu1 value="0.0"/>
+          <mu2 value="0.0"/>
+          <kp value="10000000.0" />
+          <kd value="1.0" />
+          <fdir1 value="1 0 0"/>
+          <maxVel>1.0</maxVel>
+          <minDepth>0.0</minDepth>
+          <turnGravityOff>false</turnGravityOff>
+        </gazebo>
+    </xacro:if>
 
-    <!-- Just so that we can see the wheels turn -->
+    <xacro:unless value="$(arg use_fixed_wheels)">
+      <joint name="${prefix}_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="${prefix}_link"/>
+        <origin xyz="${wheel_radial_dist*cos(yaw_angle)} ${-wheel_radial_dist*sin(yaw_angle)} ${-((base_top_height-base_depth/2)- wheel_radius)}" rpy="0 0 ${pi/2-yaw_angle}"/>
+        <axis xyz="0 1 0"/>
+        <joint_properties damping="${global_damping}" friction="${global_friction}"/>
+      </joint>
+      <!-- Physics because we're smart and handsome -->
+      <gazebo reference="${prefix}_link">
+        <mu1 value="1.0"/>
+        <mu2 value="0.0"/>
+        <kp value="10000000.0" />
+        <kd value="1.0" />
+        <fdir1 value="1 0 0"/>
+        <maxVel>5.0</maxVel>
+        <minDepth>0.002</minDepth>
+        <turnGravityOff>false</turnGravityOff>
+      </gazebo>
+    </xacro:unless>
+
+    <!-- Just so that we can see the wheels turn when they turn -->
     <link name="${prefix}_extra_link">
       <visual>
         <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
