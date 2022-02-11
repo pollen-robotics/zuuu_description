@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <robot name="zuuu" xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- omni_steering -->
-	<!-- <xacro:include filename="/home/remi/ros2_ws/src/zuuu_description/src/description/zuuu_omni_steering.urdf.xacro" /> -->
-  
+  <xacro:arg name="use_fake_components" default="true"/>
 
   <!-- Define robot constants -->
   <xacro:property name="base_radius" value="0.16"/>
@@ -172,10 +170,14 @@
     </plugin>  
   </gazebo>
 
-  <ros2_control name="GazeboSystem" type="system">
+  <ros2_control name="zuuu_ros2_control" type="system">
     <hardware>
+      <xacro:if value="$(arg use_fake_components)">
+        <plugin>fake_components/GenericSystem</plugin>
+      </xacro:if>
+      <xacro:unless value="$(arg use_fake_components)">
         <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-        <!-- <plugin>fake_components/GenericSystem</plugin> -->
+      </xacro:unless>
 
     </hardware>
     <joint name="drivewhl1_joint">
@@ -204,12 +206,13 @@
     </joint>
   </ros2_control>
   <!-- Calling the pluging that will parse the ros2_control tags -->
-  <gazebo>
-    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
-    </plugin>
-  </gazebo>
-
+  <xacro:unless value="$(arg use_fake_components)">
+    <gazebo>
+      <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+        <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
+      </plugin>
+    </gazebo>
+  </xacro:unless>
 
   <link name="imu_link">
     <visual>
