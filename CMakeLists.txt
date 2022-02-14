@@ -21,11 +21,12 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+install(
+  DIRECTORY src launch rviz config world
+  DESTINATION share/${PROJECT_NAME}
+)
+
 if(BUILD_TESTING)
-  install(
-    DIRECTORY src launch rviz config world
-    DESTINATION share/${PROJECT_NAME}
-  )
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights
   # uncomment the line when a copyright and license is not present in all source files
