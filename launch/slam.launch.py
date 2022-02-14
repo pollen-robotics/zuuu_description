@@ -8,6 +8,10 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+
+    use_sim_time_param = {
+        'use_sim_time': use_sim_time}
+
     param_file_name = 'slam.yaml'
     param_dir = LaunchConfiguration(
         'parameters',
@@ -37,5 +41,5 @@ def generate_launch_description():
 
         Node(
             package='slam_toolbox', executable='sync_slam_toolbox_node', output='screen',
-            name='slam_toolbox', parameters=[param_dir])
+            name='slam_toolbox', parameters=[param_dir, use_sim_time_param])
     ])

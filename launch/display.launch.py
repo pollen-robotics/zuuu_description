@@ -24,6 +24,7 @@ def generate_launch_description():
 
     # robot_description_content = Command(
     #     ['xacro ', LaunchConfiguration('model')])
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
     robot_description_content = Command(
         [
@@ -36,7 +37,11 @@ def generate_launch_description():
         ]
     )
 
-    robot_description = {"robot_description": robot_description_content}
+    robot_description = {
+        "robot_description": robot_description_content}
+
+    use_sim_time_param = {
+        'use_sim_time': use_sim_time}
 
     zuuu_controller = PathJoinSubstitution(
         [
@@ -50,13 +55,14 @@ def generate_launch_description():
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[robot_description]
+        parameters=[robot_description, use_sim_time_param,
+                    {"ignore_timestamp": True}]
     )
 
     controller_manager_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, zuuu_controller],
+        parameters=[robot_description, zuuu_controller, use_sim_time_param],
         output={
             "stdout": "screen",
             "stderr": "screen",
@@ -66,7 +72,15 @@ def generate_launch_description():
         package='controller_manager',
         executable='spawner.py',
         arguments=['joint_state_broadcaster'],
+        parameters=[use_sim_time_param],
         output='screen',
+    )
+    joint_state_publisher_node = launch_ros.actions.Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        parameters=[use_sim_time_param],
+        condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
     )
     rviz_node = Node(
         package='rviz2',
@@ -74,6 +88,7 @@ def generate_launch_description():
         name='rviz2',
         output='screen',
         arguments=['-d', LaunchConfiguration('rvizconfig')],
+        parameters=[use_sim_time_param],
     )
     # gazebo = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(
@@ -95,7 +110,7 @@ def generate_launch_description():
         name='ekf_filter_node',
         output='screen',
         parameters=[os.path.join(pkg_share, 'config/ekf.yaml'),
-                    {'use_sim_time': LaunchConfiguration('use_sim_time')}]
+                    use_sim_time_param]
     )
 
     return LaunchDescription([
@@ -115,10 +130,11 @@ def generate_launch_description():
 
         launch.actions.ExecuteProcess(
             cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', world_path], output='screen'),
-        spawn_entity,
-        controller_manager_node,
+        joint_state_publisher_node,
         joint_state_broadcaster_spawner,
         robot_state_publisher_node,
+        spawn_entity,
+        controller_manager_node,
         robot_localization_node,
         rviz_node
     ])
