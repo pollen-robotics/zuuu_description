@@ -20,7 +20,15 @@ def generate_launch_description():
     default_model_path = os.path.join(
         pkg_share, 'src/description/zuuu_description.urdf.xacro')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
-    world_path = os.path.join(pkg_share, 'world/my_world.sdf')
+    # world_path = os.path.join(pkg_share, 'worlds/model.sdf')
+    # Set the path to the world file
+    world_file_name = 'small_house.world'  # 'hospital.world'  # 'my_world.sdf'
+    world_path = os.path.join(pkg_share, 'worlds', world_file_name)
+
+    # Set the path to the SDF model files.
+    gazebo_models_path = os.path.join(pkg_share, 'models')
+    # os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
+    print("*************************** {}".format(gazebo_models_path))
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
@@ -111,6 +119,10 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+            name='world',
+            default_value=world_path,
+            description='Full path to the world model file to load'),
         DeclareLaunchArgument(
             'controllers_file',
             default_value=['zuuu_controllers.yaml'],
