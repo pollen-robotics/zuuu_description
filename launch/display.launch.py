@@ -9,6 +9,8 @@ from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from ament_index_python.packages import get_package_share_directory
+
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -17,18 +19,14 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package='zuuu_description').find('zuuu_description')
+    pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     default_model_path = os.path.join(
         pkg_share, 'src/description/zuuu_description.urdf.xacro')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
-    # world_path = os.path.join(pkg_share, 'worlds/model.sdf')
     # Set the path to the world file
-    world_file_name = 'small_house.world'  # 'hospital.world'  # 'my_world.sdf'
+    # 'hospital.world'  # 'my_world.sdf'
+    world_file_name = 'hospital.world'
     world_path = os.path.join(pkg_share, 'worlds', world_file_name)
-
-    # Set the path to the SDF model files.
-    gazebo_models_path = os.path.join(pkg_share, 'models')
-    # os.environ["GAZEBO_MODEL_PATH"] = gazebo_models_path
-    print("*************************** {}".format(gazebo_models_path))
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
@@ -99,11 +97,14 @@ def generate_launch_description():
         parameters=[use_sim_time_param],
     )
 
+    # To get all the available options:
+    # ros2 run gazebo_ros spawn_entity.py -h
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
         arguments=['-entity', 'zuuu', '-topic',
-                   'robot_description'],
+                   'robot_description', '-timeout', '60',  '-x', '0', '-y', '2'],
+
         output='screen'
     )
     # Beware! The libgazebo_ros_planar_move.so plugin already published the topic /odom AND the odom TFs.
@@ -120,10 +121,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            name='world',
-            default_value=world_path,
-            description='Full path to the world model file to load'),
-        DeclareLaunchArgument(
             'controllers_file',
             default_value=['zuuu_controllers.yaml'],
             description='YAML file with the controllers configuration.',
@@ -136,9 +133,18 @@ def generate_launch_description():
                               description='Absolute path to rviz config file'),
         DeclareLaunchArgument(name='use_sim_time', default_value='True',
                               description='Flag to enable use_sim_time'),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')
+            ),
+            launch_arguments={'world': world_path, 'verbose': 'true'}.items(),
+        ),
 
-        ExecuteProcess(cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so',
-                                      '-s', 'libgazebo_ros_factory.so', world_path], output='screen'),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_gazebo_ros, 'launch', 'gzclient.launch.py')
+            ),
+        ),
         # joint_state_publisher_node,
         joint_state_broadcaster_spawner,
         robot_state_publisher_node,
