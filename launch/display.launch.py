@@ -4,7 +4,7 @@ import os
 
 from launch import LaunchDescription
 from launch import event_handlers
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, ExecuteProcess
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -22,8 +22,6 @@ def generate_launch_description():
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
     world_path = os.path.join(pkg_share, 'world/my_world.sdf')
 
-    # robot_description_content = Command(
-    #     ['xacro ', LaunchConfiguration('model')])
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
     robot_description_content = Command(
@@ -56,8 +54,7 @@ def generate_launch_description():
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[robot_description,
-                    {"ignore_timestamp": True}]
+        parameters=[robot_description, use_sim_time_param]
     )
 
     controller_manager_node = Node(
@@ -78,13 +75,13 @@ def generate_launch_description():
         parameters=[use_sim_time_param],
         output='screen',
     )
-    joint_state_publisher_node = Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        parameters=[use_sim_time_param],
-        condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
-    )
+    # joint_state_publisher_node = Node(
+    #     package='joint_state_publisher',
+    #     executable='joint_state_publisher',
+    #     name='joint_state_publisher',
+    #     parameters=[use_sim_time_param],
+    #     condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
+    # )
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -93,13 +90,7 @@ def generate_launch_description():
         arguments=['-d', LaunchConfiguration('rvizconfig')],
         parameters=[use_sim_time_param],
     )
-    # gazebo = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         [PathJoinSubstitution(
-    #             [launch_ros.substitutions.FindPackageShare('gazebo_ros'), 'launch', 'gazebo.launch.py'])]
-    #     ),
-    #     launch_arguments={'verbose': 'true'}.items(),
-    # )
+
     spawn_entity = Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
@@ -107,6 +98,9 @@ def generate_launch_description():
                    'robot_description'],
         output='screen'
     )
+    # Beware! The libgazebo_ros_planar_move.so plugin already published the topic /odom AND the odom TFs.
+    # So the robot_localization_node should either not be called or at least never be configured to write
+    # its output on /odom (cf. config/ekf.yaml).
     robot_localization_node = Node(
         package='robot_localization',
         executable='ekf_node',
@@ -131,13 +125,21 @@ def generate_launch_description():
         DeclareLaunchArgument(name='use_sim_time', default_value='True',
                               description='Flag to enable use_sim_time'),
 
-        launch.actions.ExecuteProcess(
-            cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', world_path], output='screen'),
-        joint_state_publisher_node,
-        # joint_state_broadcaster_spawner,
+        ExecuteProcess(cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so',
+                                      '-s', 'libgazebo_ros_factory.so', world_path], output='screen'),
+        # joint_state_publisher_node,
+        joint_state_broadcaster_spawner,
         robot_state_publisher_node,
         spawn_entity,
-        # controller_manager_node,
+        controller_manager_node,
         # robot_localization_node,
         rviz_node
     ])
+
+
+""" 
+Infamous bug where the TFs from map to anything other than odom was outdated (with the weird 0.2 timestamp) 
+solved by calling libgazebo_ros_init.so and libgazebo_ros_factory.so
+
+https://discourse.ros.org/t/spawning-a-robot-entity-using-a-node-with-gazebo-and-ros-2/9985
+"""

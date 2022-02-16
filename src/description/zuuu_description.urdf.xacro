@@ -3,7 +3,7 @@
 
   <xacro:arg name="use_fake_components" default="false"/>
   <xacro:arg name="use_fixed_wheels" default="true"/>
-  <xacro:arg name="use_ros_control" default="false"/>
+  <xacro:arg name="use_ros_control" default="true"/>
 
   <!-- Define robot constants -->
   <xacro:property name="base_radius" value="0.16"/>
