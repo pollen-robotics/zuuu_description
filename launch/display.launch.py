@@ -17,19 +17,20 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
+    # Path finding (peak comedy)
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package='zuuu_description').find('zuuu_description')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     default_model_path = os.path.join(
         pkg_share, 'src/description/zuuu_description.urdf.xacro')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
+
     # Set the path to the world file
     # 'hospital.world'  # 'my_world.sdf'
     world_file_name = 'hospital.world'
     world_path = os.path.join(pkg_share, 'worlds', world_file_name)
 
-    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-
+    # Paths to the robot description and its controllers
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name='xacro')]),
@@ -40,13 +41,8 @@ def generate_launch_description():
             ),
         ]
     )
-
     robot_description = {
         "robot_description": robot_description_content}
-
-    use_sim_time_param = {
-        'use_sim_time': use_sim_time}
-
     zuuu_controller = PathJoinSubstitution(
         [
             FindPackageShare(
@@ -56,7 +52,29 @@ def generate_launch_description():
         ]
     )
 
-    # Sam bot has use_sim_time at False on this one !
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    use_sim_time_param = {
+        'use_sim_time': use_sim_time}
+
+    # Launch arguments
+    arguments = [
+        DeclareLaunchArgument(
+            'controllers_file',
+            default_value=['zuuu_controllers.yaml'],
+            description='YAML file with the controllers configuration.',
+        ),
+        DeclareLaunchArgument(name='gui', default_value='True',
+                              description='Flag to enable joint_state_publisher_gui'),
+        DeclareLaunchArgument(name='model', default_value=default_model_path,
+                              description='Absolute path to robot urdf file'),
+        DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
+                              description='Absolute path to rviz config file'),
+        DeclareLaunchArgument(name='use_sim_time', default_value='True',
+                              description='Flag to enable use_sim_time'),
+
+    ]
+
+    # Nodes declaration
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -119,20 +137,18 @@ def generate_launch_description():
                     use_sim_time_param]
     )
 
-    return LaunchDescription([
-        DeclareLaunchArgument(
-            'controllers_file',
-            default_value=['zuuu_controllers.yaml'],
-            description='YAML file with the controllers configuration.',
-        ),
-        DeclareLaunchArgument(name='gui', default_value='True',
-                              description='Flag to enable joint_state_publisher_gui'),
-        DeclareLaunchArgument(name='model', default_value=default_model_path,
-                              description='Absolute path to robot urdf file'),
-        DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
-                              description='Absolute path to rviz config file'),
-        DeclareLaunchArgument(name='use_sim_time', default_value='True',
-                              description='Flag to enable use_sim_time'),
+    # Nodes to call
+    nodes = [
+        # joint_state_publisher_node,
+        joint_state_broadcaster_spawner,
+        robot_state_publisher_node,
+        spawn_entity,
+        controller_manager_node,
+        # robot_localization_node,
+        rviz_node]
+
+    # Launch files to call
+    launches = [
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(pkg_gazebo_ros, 'launch', 'gzserver.launch.py')
@@ -145,14 +161,9 @@ def generate_launch_description():
                 os.path.join(pkg_gazebo_ros, 'launch', 'gzclient.launch.py')
             ),
         ),
-        # joint_state_publisher_node,
-        joint_state_broadcaster_spawner,
-        robot_state_publisher_node,
-        spawn_entity,
-        controller_manager_node,
-        # robot_localization_node,
-        rviz_node
-    ])
+    ]
+
+    return LaunchDescription(arguments + launches + nodes)
 
 
 """ 
