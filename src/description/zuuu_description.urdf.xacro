@@ -3,6 +3,7 @@
 
   <xacro:arg name="use_fake_components" default="false"/>
   <xacro:arg name="use_fixed_wheels" default="true"/>
+  <xacro:arg name="use_ros_control" default="false"/>
 
   <!-- Define robot constants -->
   <xacro:property name="base_radius" value="0.16"/>
@@ -193,49 +194,51 @@
     </plugin>  
   </gazebo>
 
-  <ros2_control name="zuuu_ros2_control" type="system">
-    <hardware>
-      <xacro:if value="$(arg use_fake_components)">
-        <plugin>fake_components/GenericSystem</plugin>
-      </xacro:if>
-      <xacro:unless value="$(arg use_fake_components)">
-        <plugin>gazebo_ros2_control/GazeboSystem</plugin>
-      </xacro:unless>
+  <xacro:if value="$(arg use_ros_control)">
+    <ros2_control name="zuuu_ros2_control" type="system">
+      <hardware>
+        <xacro:if value="$(arg use_fake_components)">
+          <plugin>fake_components/GenericSystem</plugin>
+        </xacro:if>
+        <xacro:unless value="$(arg use_fake_components)">
+          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </xacro:unless>
 
-    </hardware>
-    <joint name="drivewhl1_joint">
-      <command_interface name="velocity">
-          <param name="min">-1</param>
-          <param name="max">1</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-    </joint>
-    <joint name="drivewhl2_joint">
-      <command_interface name="velocity">
-          <param name="min">-1</param>
-          <param name="max">1</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-    </joint>
-    <joint name="drivewhl3_joint">
-      <command_interface name="velocity">
-          <param name="min">-1</param>
-          <param name="max">1</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-    </joint>
-  </ros2_control>
-  <!-- Calling the pluging that will parse the ros2_control tags -->
-  <xacro:unless value="$(arg use_fake_components)">
-    <gazebo>
-      <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-        <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
-      </plugin>
-    </gazebo>
-  </xacro:unless>
+      </hardware>
+      <joint name="drivewhl1_joint">
+        <command_interface name="velocity">
+            <param name="min">-1</param>
+            <param name="max">1</param>
+          </command_interface>
+          <state_interface name="position"/>
+          <state_interface name="velocity"/>
+      </joint>
+      <joint name="drivewhl2_joint">
+        <command_interface name="velocity">
+            <param name="min">-1</param>
+            <param name="max">1</param>
+          </command_interface>
+          <state_interface name="position"/>
+          <state_interface name="velocity"/>
+      </joint>
+      <joint name="drivewhl3_joint">
+        <command_interface name="velocity">
+            <param name="min">-1</param>
+            <param name="max">1</param>
+          </command_interface>
+          <state_interface name="position"/>
+          <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+    <!-- Calling the pluging that will parse the ros2_control tags -->
+    <xacro:unless value="$(arg use_fake_components)">
+      <gazebo>
+        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+          <parameters>$(find zuuu_description)/config/zuuu_controllers.yaml</parameters>
+        </plugin>
+      </gazebo>
+    </xacro:unless>
+  </xacro:if>
 
   <link name="imu_link">
     <visual>
@@ -263,7 +266,7 @@
     <sensor name="imu_sensor" type="imu">
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
         <ros>
-          <namespace>/demo</namespace>
+          <namespace></namespace>
           <remapping>~/out:=imu</remapping>
         </ros>
         <initial_orientation_as_reference>false</initial_orientation_as_reference>

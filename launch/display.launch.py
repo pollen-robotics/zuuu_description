@@ -52,10 +52,11 @@ def generate_launch_description():
         ]
     )
 
+    # Sam bot has use_sim_time at False on this one !
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        parameters=[robot_description, use_sim_time_param,
+        parameters=[robot_description,
                     {"ignore_timestamp": True}]
     )
 
@@ -68,6 +69,8 @@ def generate_launch_description():
             "stderr": "screen",
         },
     )
+    # Call this to have 'ros2 control list_controllers' give :
+    # joint_state_broadcaster[joint_state_broadcaster/JointStateBroadcaster] active
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner.py',
@@ -75,7 +78,7 @@ def generate_launch_description():
         parameters=[use_sim_time_param],
         output='screen',
     )
-    joint_state_publisher_node = launch_ros.actions.Node(
+    joint_state_publisher_node = Node(
         package='joint_state_publisher',
         executable='joint_state_publisher',
         name='joint_state_publisher',
@@ -131,10 +134,10 @@ def generate_launch_description():
         launch.actions.ExecuteProcess(
             cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_factory.so', world_path], output='screen'),
         joint_state_publisher_node,
-        joint_state_broadcaster_spawner,
+        # joint_state_broadcaster_spawner,
         robot_state_publisher_node,
         spawn_entity,
-        controller_manager_node,
-        robot_localization_node,
+        # controller_manager_node,
+        # robot_localization_node,
         rviz_node
     ])
