@@ -20,8 +20,7 @@ def generate_launch_description():
             'config/',
             param_file_name))
 
-    slam_launch_file_dir = os.path.join(
-        get_package_share_directory('slam_toolbox'), 'launch')
+    print("To save the map, go to the /maps directory and call the map saver like this:\nros2 run nav2_map_server map_saver_cli -f ./hospital -t map")
 
     return LaunchDescription([
         DeclareLaunchArgument(
