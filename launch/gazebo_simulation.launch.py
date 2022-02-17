@@ -23,7 +23,9 @@ def generate_launch_description():
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     default_model_path = os.path.join(
         pkg_share, 'src/description/zuuu_description.urdf.xacro')
-    default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
+    # default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
+    default_rviz_config_path = os.path.join(
+        pkg_share, 'rviz/navigation.rviz')
 
     # Set the path to the world file
     # 'hospital.world'  # 'my_world.sdf'
