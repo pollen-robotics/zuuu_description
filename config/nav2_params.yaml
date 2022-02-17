@@ -1,11 +1,12 @@
+# https://navigation.ros.org/configuration/packages/configuring-amcl.html
 amcl:
   ros__parameters:
     use_sim_time: True
     alpha1: 0.1
-    # alpha2: 1.0
+    alpha2: 0.2
     alpha3: 0.1
-    # alpha4: 1.0
-    # alpha5: 1.0
+    alpha4: 0.2
+    alpha5: 0.2
     base_frame_id: "base_footprint"
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
@@ -18,7 +19,7 @@ amcl:
     laser_max_range: -1.0
     laser_min_range: -1.0
     laser_model_type: "likelihood_field"
-    max_beams: 200
+    max_beams: 300
     max_particles: 2000
     min_particles: 500
     odom_frame_id: "odom"
@@ -174,6 +175,7 @@ controller_server_rclcpp_node:
   ros__parameters:
     use_sim_time: True
 
+# https://navigation.ros.org/configuration/packages/configuring-costmaps.html
 local_costmap:
   local_costmap:
     ros__parameters:
@@ -182,15 +184,17 @@ local_costmap:
       global_frame: odom
       robot_base_frame: base_link
       use_sim_time: True
+      robot_radius: 0.25
       rolling_window: true
-      width: 3
-      height: 3
+      width: 5
+      height: 5
       resolution: 0.05
+      # https://navigation.ros.org/setup_guides/sensors/setup_sensors.html#costmap-2d
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.25
+        cost_scaling_factor: 5.0
+        inflation_radius: 1.0
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -207,9 +211,9 @@ local_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 20.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 18.0
           obstacle_min_range: 0.0
       static_layer:
         map_subscribe_transient_local: True
@@ -220,7 +224,7 @@ local_costmap:
   local_costmap_rclcpp_node:
     ros__parameters:
       use_sim_time: True
-
+# https://navigation.ros.org/configuration/packages/configuring-costmaps.html
 global_costmap:
   global_costmap:
     ros__parameters:
@@ -243,17 +247,17 @@ global_costmap:
           clearing: True
           marking: True
           data_type: "LaserScan"
-          raytrace_max_range: 3.0
+          raytrace_max_range: 20.0
           raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
+          obstacle_max_range: 18.0
           obstacle_min_range: 0.0
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 5.0
+        inflation_radius: 1.0
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:
@@ -290,6 +294,7 @@ planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: True
 
+# https://navigation.ros.org/configuration/packages/configuring-recovery-server.html
 recoveries_server:
   ros__parameters:
     costmap_topic: local_costmap/costmap_raw
