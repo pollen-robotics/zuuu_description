@@ -23,9 +23,6 @@ def generate_launch_description():
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     default_model_path = os.path.join(
         pkg_share, 'src/description/zuuu_description.urdf.xacro')
-    # default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
-    default_rviz_config_path = os.path.join(
-        pkg_share, 'rviz/navigation.rviz')
 
     # Set the path to the world file
     # 'hospital.world'  # 'my_world.sdf'
@@ -69,8 +66,6 @@ def generate_launch_description():
                               description='Flag to enable joint_state_publisher_gui'),
         DeclareLaunchArgument(name='model', default_value=default_model_path,
                               description='Absolute path to robot urdf file'),
-        DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
-                              description='Absolute path to rviz config file'),
         DeclareLaunchArgument(name='use_sim_time', default_value='True',
                               description='Flag to enable use_sim_time'),
 
@@ -108,14 +103,6 @@ def generate_launch_description():
     #     parameters=[use_sim_time_param],
     #     condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
     # )
-    rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
-        parameters=[use_sim_time_param],
-    )
 
     # To get all the available options:
     # ros2 run gazebo_ros spawn_entity.py -h
@@ -147,7 +134,7 @@ def generate_launch_description():
         spawn_entity,
         controller_manager_node,
         # robot_localization_node,
-        rviz_node]
+    ]
 
     # Launch files to call
     launches = [
