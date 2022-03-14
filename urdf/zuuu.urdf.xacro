@@ -5,8 +5,8 @@
   <xacro:arg name="model" default="" />
 
   <xacro:arg name="use_gazebo" default="true"/>
-  <xacro:arg name="use_fake_components" default="true"/>
-  <xacro:arg name="use_fixed_wheels" default="false"/>
+  <xacro:arg name="use_fake_components" default="false"/>
+  <xacro:arg name="use_fixed_wheels" default="true"/>
   <xacro:arg name="use_ros_control" default="true"/>
 
   <!-- Import zuuu macro -->

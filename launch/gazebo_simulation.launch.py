@@ -38,6 +38,14 @@ def generate_launch_description():
                 [FindPackageShare('zuuu_description'),
                  'urdf', 'zuuu.urdf.xacro']
             ),
+            ' ',
+            'use_gazebo:=true',
+            ' ',
+            'use_fake_components:=false',
+            ' ',
+            'use_fixed_wheels:=true',
+            ' ',
+            'use_ros_control:=true',
         ]
     )
     robot_description = {
@@ -68,7 +76,6 @@ def generate_launch_description():
                               description='Absolute path to robot urdf file'),
         DeclareLaunchArgument(name='use_sim_time', default_value='True',
                               description='Flag to enable use_sim_time'),
-
     ]
 
     # Nodes declaration
