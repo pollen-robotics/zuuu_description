@@ -22,7 +22,7 @@ def generate_launch_description():
         package='zuuu_description').find('zuuu_description')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     default_model_path = os.path.join(
-        pkg_share, 'urdf/zuuu_description.urdf.xacro')
+        pkg_share, 'urdf/zuuu.urdf.xacro')
 
     # Set the path to the world file
     # 'hospital.world'  # 'my_world.sdf'
@@ -36,7 +36,7 @@ def generate_launch_description():
             ' ',
             PathJoinSubstitution(
                 [FindPackageShare('zuuu_description'),
-                 'urdf', 'zuuu_description.urdf.xacro']
+                 'urdf', 'zuuu.urdf.xacro']
             ),
         ]
     )
