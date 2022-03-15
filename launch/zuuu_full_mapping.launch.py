@@ -20,8 +20,10 @@ def generate_launch_description():
     # Path finding (peak comedy)
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package='zuuu_description').find('zuuu_description')
+    pkg_share_follow_me = launch_ros.substitutions.FindPackageShare(
+        package='zuuu_follow_me').find('zuuu_follow_me')
     default_rviz_config_path = os.path.join(
-        pkg_share, 'rviz/bringup.rviz')
+        pkg_share, 'rviz/mapping.rviz')
     # rviz_config_dir = os.path.join(
     #     get_package_share_directory('rplidar_ros2'),
     #     'rviz',
@@ -57,35 +59,25 @@ def generate_launch_description():
         parameters=[use_sim_time_param],)
 
     nodes = [
-        zuuu_hal,
-        rviz,
 
     ]
+    # launch_arguments={'use_sim_time': False}.items(),
 
     # Launch files to call
     launches = [
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(rplidar_launch_dir, 'zuuu_rplidar_s2_launch.py')),
+                os.path.join(pkg_share, 'launch',
+                             'zuuu_bringup.launch.py')
+            ),
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(pkg_share, 'launch',
-                             'description_bringup.launch.py')
+                             'mapping.launch.py')
             ),
         ),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         os.path.join(pkg_share, 'launch',
-        #                      'navigation.launch.py')
-        #     ),
-        # ),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         os.path.join(pkg_share, 'launch',
-        #                      'rviz_navigation.launch.py')
-        #     ),
-        # ),
+
     ]
 
     return LaunchDescription(arguments + launches + nodes)
