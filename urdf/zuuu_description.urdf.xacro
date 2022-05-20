@@ -52,14 +52,14 @@
     
     <!-- Robot Base -->
     <link name="base_link">
-      <visual>
+      <!-- <visual>
         <geometry>
           <cylinder radius="${base_radius}" length="${base_depth}"/>
         </geometry>
         <material name="Cyan">
           <color rgba="0 1.0 1.0 1.0"/>
         </material>
-      </visual>
+      </visual> -->
 
       <visual>
         <origin xyz="0 0 ${(-base_top_height+base_depth/2)}" rpy="0 0 0"/>
@@ -168,11 +168,11 @@
     <xacro:wheel prefix="drivewhl3" yaw_angle="${pi}" />
 
     <link name="imu_link">
-      <visual>
+      <!-- <visual>
         <geometry>
           <box size="0.1 0.1 0.02"/>
         </geometry>
-      </visual>
+      </visual> -->
       
       <collision>
         <geometry>
@@ -203,12 +203,12 @@
         </geometry>
       </collision>
 
-      <visual>
+      <!-- <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <cylinder radius="0.0508" length="0.055"/>
         </geometry>
-      </visual>
+      </visual> -->
     </link>
       
     <joint name="lidar_joint" type="fixed">
@@ -220,12 +220,12 @@
     </joint>
     
     <link name="camera_link">
-      <visual>
+      <!-- <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
           <box size="0.015 0.130 0.022"/>
         </geometry>
-      </visual>
+      </visual> -->
 
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
