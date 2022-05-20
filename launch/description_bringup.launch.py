@@ -23,11 +23,6 @@ def generate_launch_description():
     default_model_path = os.path.join(
         pkg_share, 'urdf/zuuu.urdf.xacro')
 
-    # Set the path to the world file
-    # 'hospital.world'  # 'my_world.sdf'
-    world_file_name = 'hospital.world'
-    world_path = os.path.join(pkg_share, 'worlds', world_file_name)
-
     # Paths to the robot description and its controllers
     robot_description_content = Command(
         [

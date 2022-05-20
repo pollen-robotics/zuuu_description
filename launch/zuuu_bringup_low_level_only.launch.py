@@ -37,10 +37,10 @@ def generate_launch_description():
 
     # Launch files to call
     launches = [
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(rplidar_launch_dir, 'zuuu_rplidar_s2_launch.py')),
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource(
+        #         os.path.join(rplidar_launch_dir, 'zuuu_rplidar_s2_launch.py')),
+        # ),
     ]
 
     return LaunchDescription(arguments + launches + nodes)
