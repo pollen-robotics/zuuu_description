@@ -20,26 +20,25 @@ def generate_launch_description():
     rplidar_launch_dir = os.path.join(
         get_package_share_directory('rplidar_ros2'), 'launch')
 
+    zuuu_hal_launch_dir = get_package_share_directory('zuuu_follow_me')
+
     # Launch arguments
     arguments = [
         DeclareLaunchArgument(name='use_sim_time', default_value='False',
                               description='Flag to enable use_sim_time'),
     ]
-    zuuu_hal = Node(
-        package='zuuu_follow_me',
-        executable='hal',
-        name='hal',
 
-    )
-    nodes = [
-        zuuu_hal
-    ]
+    nodes = []
 
     # Launch files to call
     launches = [
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(rplidar_launch_dir, 'zuuu_rplidar_s2_launch.py')),
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(zuuu_hal_launch_dir, 'hal_launch.py')),
         ),
     ]
 

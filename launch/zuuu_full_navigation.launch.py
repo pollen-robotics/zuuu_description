@@ -20,21 +20,9 @@ def generate_launch_description():
     # Path finding (peak comedy)
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package='zuuu_description').find('zuuu_description')
-    pkg_share_follow_me = launch_ros.substitutions.FindPackageShare(
-        package='zuuu_follow_me').find('zuuu_follow_me')
+
     default_rviz_config_path = os.path.join(
         pkg_share, 'rviz/navigation.rviz')
-    # rviz_config_dir = os.path.join(
-    #     get_package_share_directory('rplidar_ros2'),
-    #     'rviz',
-    #     'rplidar_ros2.rviz')
-
-    rplidar_launch_dir = os.path.join(
-        get_package_share_directory('rplidar_ros2'), 'launch')
-
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-    use_sim_time_param = {
-        'use_sim_time': use_sim_time}
 
     # Launch arguments
     arguments = [
@@ -44,22 +32,7 @@ def generate_launch_description():
                               description='Absolute path to rviz config file'),
     ]
 
-    zuuu_hal = Node(
-        package='zuuu_follow_me',
-        executable='hal',
-        name='hal',
-
-    )
-    rviz = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
-        output='screen',
-        parameters=[use_sim_time_param],)
-
     nodes = [
-
     ]
     # launch_arguments={'use_sim_time': False}.items(),
 

@@ -22,6 +22,8 @@ def generate_launch_description():
         package='zuuu_description').find('zuuu_description')
     default_rviz_config_path = os.path.join(
         pkg_share, 'rviz/bringup.rviz')
+    zuuu_hal_launch_dir = get_package_share_directory('zuuu_follow_me')
+
     # rviz_config_dir = os.path.join(
     #     get_package_share_directory('rplidar_ros2'),
     #     'rviz',
@@ -42,12 +44,6 @@ def generate_launch_description():
                               description='Absolute path to rviz config file'),
     ]
 
-    zuuu_hal = Node(
-        package='zuuu_follow_me',
-        executable='hal',
-        name='hal',
-
-    )
     rviz = Node(
         package='rviz2',
         executable='rviz2',
@@ -57,7 +53,6 @@ def generate_launch_description():
         parameters=[use_sim_time_param],)
 
     nodes = [
-        zuuu_hal,
         rviz,
 
     ]
@@ -73,6 +68,10 @@ def generate_launch_description():
                 os.path.join(pkg_share, 'launch',
                              'description_bringup.launch.py')
             ),
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(zuuu_hal_launch_dir, 'hal_launch.py')),
         ),
         # IncludeLaunchDescription(
         #     PythonLaunchDescriptionSource(

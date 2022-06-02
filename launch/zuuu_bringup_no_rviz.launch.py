@@ -23,6 +23,7 @@ def generate_launch_description():
 
     rplidar_launch_dir = os.path.join(
         get_package_share_directory('rplidar_ros2'), 'launch')
+    zuuu_hal_launch_dir = get_package_share_directory('zuuu_follow_me')
 
     # Launch arguments
     arguments = [
@@ -36,7 +37,6 @@ def generate_launch_description():
 
     )
     nodes = [
-        zuuu_hal
     ]
 
     # Launch files to call
@@ -50,6 +50,10 @@ def generate_launch_description():
                 os.path.join(pkg_share, 'launch',
                              'description_bringup.launch.py')
             ),
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(zuuu_hal_launch_dir, 'hal_launch.py')),
         ),
     ]
 
