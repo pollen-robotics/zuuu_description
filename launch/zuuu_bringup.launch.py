@@ -22,7 +22,7 @@ def generate_launch_description():
         package='zuuu_description').find('zuuu_description')
     default_rviz_config_path = os.path.join(
         pkg_share, 'rviz/bringup.rviz')
-    zuuu_hal_launch_dir = get_package_share_directory('zuuu_follow_me')
+    zuuu_hal_launch_dir = get_package_share_directory('zuuu_hal')
 
     # rviz_config_dir = os.path.join(
     #     get_package_share_directory('rplidar_ros2'),

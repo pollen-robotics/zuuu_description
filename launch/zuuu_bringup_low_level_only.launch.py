@@ -20,7 +20,7 @@ def generate_launch_description():
     rplidar_launch_dir = os.path.join(
         get_package_share_directory('rplidar_ros2'), 'launch')
 
-    zuuu_hal_launch_dir = get_package_share_directory('zuuu_follow_me')
+    zuuu_hal_launch_dir = get_package_share_directory('zuuu_hal')
 
     # Launch arguments
     arguments = [
