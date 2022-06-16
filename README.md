@@ -10,10 +10,13 @@ export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-11
 export ZUUU_MAP_NAME=hospital
 ```
 
-To download the meshes :
+Create a /meshes folder:
 ```
-https://drive.google.com/drive/folders/1DmWvTH9_kLzz0CR-Mx9DpY290iP1_A_8
+mkdir -p zuuu_description/meshes
+cd zuuu_description/meshes
 ```
+
+Download the mesh used: [link](https://drive.google.com/file/d/1y3KqgaIK0916n6ELnhmQw_U-jSFYrvL3/view?usp=sharing%29).
 
 ## Usage
 ```
