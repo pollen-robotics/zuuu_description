@@ -71,7 +71,7 @@ def generate_launch_description():
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(zuuu_hal_launch_dir, 'hal_launch.py')),
+                os.path.join(zuuu_hal_launch_dir, 'hal.launch.py')),
         ),
         # IncludeLaunchDescription(
         #     PythonLaunchDescriptionSource(
