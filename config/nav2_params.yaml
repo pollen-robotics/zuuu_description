@@ -33,7 +33,7 @@ amcl:
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 0.1
-    scan_topic: scan
+    scan_topic: scan_filterd
     update_min_a: 0.1
     update_min_d: 0.1
     # z_hit: 0.5
@@ -203,7 +203,7 @@ local_costmap:
         enabled: True
         observation_sources: scan
         scan:
-          topic: /scan
+          topic: /scan_filterd
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -242,7 +242,7 @@ global_costmap:
         observation_sources: scan
         footprint_clearing_enabled: True
         scan:
-          topic: /scan
+          topic: /scan_filterd
           observation_persistence: 0.0
           expected_update_rate: 10.0
           max_obstacle_height: 2.0

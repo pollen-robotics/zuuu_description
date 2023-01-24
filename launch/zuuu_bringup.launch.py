@@ -61,17 +61,13 @@ def generate_launch_description():
     launches = [
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(rplidar_launch_dir, 'zuuu_rplidar_s2_launch.py')),
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
                 os.path.join(pkg_share, 'launch',
                              'description_bringup.launch.py')
             ),
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
-                os.path.join(zuuu_hal_launch_dir, 'hal_launch.py')),
+                os.path.join(zuuu_hal_launch_dir, 'hal.launch.py')),
         ),
         # IncludeLaunchDescription(
         #     PythonLaunchDescriptionSource(

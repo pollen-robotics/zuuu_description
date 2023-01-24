@@ -17,40 +17,31 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    # Path finding (peak comedy)
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package='zuuu_description').find('zuuu_description')
+    default_rviz_config_path = os.path.join(
+        pkg_share, 'rviz/lidar.rviz')
 
-    rplidar_launch_dir = os.path.join(
-        get_package_share_directory('rplidar_ros2'), 'launch')
-    zuuu_hal_launch_dir = get_package_share_directory('zuuu_hal')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    use_sim_time_param = {
+        'use_sim_time': use_sim_time}
 
     # Launch arguments
     arguments = [
-        DeclareLaunchArgument(name='use_sim_time', default_value='False',
+        DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
+                              description='Absolute path to rviz config file'),
+        DeclareLaunchArgument(name='use_sim_time', default_value='True',
                               description='Flag to enable use_sim_time'),
     ]
-    zuuu_hal = Node(
-        package='zuuu_hal',
-        executable='hal',
-        name='hal',
 
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        arguments=['-d', LaunchConfiguration('rvizconfig')],
+        parameters=[use_sim_time_param],
     )
-    nodes = [
-    ]
+    nodes = [rviz_node]
 
-    # Launch files to call
-    launches = [
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(pkg_share, 'launch',
-                             'description_bringup.launch.py')
-            ),
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(zuuu_hal_launch_dir, 'hal.launch.py')),
-        ),
-    ]
-
-    return LaunchDescription(arguments + launches + nodes)
+    return LaunchDescription(arguments+nodes)
