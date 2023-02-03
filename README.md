@@ -4,6 +4,14 @@ Eventually, will be merged into :
 https://github.com/pollen-robotics/reachy2021_ros2_control/tree/main/reachy_description
 
 ## Setup
+
+Make sure to install:
+```
+sudo apt install ros-foxy-gazebo-ros-pkgs
+sudo apt install ros-foxy-navigation2
+sudo apt install ros-foxy-nav2-bringup
+```
+
 Add to your bashrc:
 ```
 export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-11
